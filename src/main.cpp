@@ -4,6 +4,10 @@
 
 #include <Arduino.h>
 #include <FastLED.h>
+#include <ESP8266WiFi.h>
+#include <ESP8266mDNS.h>
+#include <WiFiUdp.h>
+#include <ArduinoOTA.h>
 
 #define USE_MESH true
 #if USE_MESH
@@ -15,7 +19,7 @@ painlessMesh mesh;
 #include <TaskScheduler.h>
 #endif
 
-#define BUTTON_PIN  2
+#define BUTTON_PIN  14
 #define LED_PIN     12
 #define COLOR_ORDER GRB
 #define CHIPSET     WS2811
@@ -117,7 +121,7 @@ void setup() {
 
   #if USE_MESH
   mesh.setDebugMsgTypes( ERROR | MESH_STATUS | CONNECTION | SYNC | COMMUNICATION | GENERAL | MSG_TYPES | REMOTE );
-  mesh.init(MESH_SSID, MESH_PASS, &scheduler, 5555, WIFI_STA);
+  mesh.init(MESH_SSID, MESH_PASS, &scheduler, 5555);
   mesh.onReceive(&receivedCallback);
   mesh.onNewConnection(&newConnectionCallback);
   mesh.onChangedConnections(&changedConnectionCallback);
@@ -129,6 +133,37 @@ void setup() {
     Serial.printf("Empty network, assuming control.\n");
     setIsController(true);
   }
+
+  // Port defaults to 8266
+  // ArduinoOTA.setPort(8266);
+
+  // Hostname defaults to esp8266-[ChipID]
+  // ArduinoOTA.setHostname("myesp8266");
+
+  // No authentication by default
+  // ArduinoOTA.setPassword((const char *)"123");
+
+  ArduinoOTA.onStart([]() {
+    Serial.println("Start");
+  });
+  ArduinoOTA.onEnd([]() {
+    Serial.println("\nEnd");
+  });
+  ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
+    Serial.printf("Progress: %u%%\r", (progress / (total / 100)));
+  });
+  ArduinoOTA.onError([](ota_error_t error) {
+    Serial.printf("Error[%u]: ", error);
+    if (error == OTA_AUTH_ERROR) Serial.println("Auth Failed");
+    else if (error == OTA_BEGIN_ERROR) Serial.println("Begin Failed");
+    else if (error == OTA_CONNECT_ERROR) Serial.println("Connect Failed");
+    else if (error == OTA_RECEIVE_ERROR) Serial.println("Receive Failed");
+    else if (error == OTA_END_ERROR) Serial.println("End Failed");
+  });
+  ArduinoOTA.begin();
+  Serial.println("Ready");
+  Serial.print("IP address: ");
+  Serial.println(WiFi.localIP());
   #endif
 
   scheduler.addTask(task_next_frame);
@@ -139,6 +174,7 @@ void loop()
 {
   #if USE_MESH
   mesh.update();
+  ArduinoOTA.handle();
   #else
   scheduler.execute();
   #endif
