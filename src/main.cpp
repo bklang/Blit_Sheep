@@ -46,31 +46,49 @@ void next_frame();
 Task task_next_frame( 15 * TASK_MILLISECOND , TASK_FOREVER, &next_frame );
 
 void Fire2012();
-// FIRE2012_COOLING: How much does the air cool as it rises?
+// How much does the air cool as it rises?
 // Less cooling = taller flames.  More cooling = shorter flames.
 // Default 50, suggested range 20-100 
 #define FIRE2012_COOLING  55
 
-// FIRE2012_SPARKING: What chance (out of 255) is there that a new spark will be lit?
+// What chance (out of 255) is there that a new spark will be lit?
 // Higher chance = more roaring fire.  Lower chance = more flickery fire.
 // Default 120, suggested range 50-200.
 #define FIRE2012_SPARKING 100
 
+// Creates a simple pulsing effect of a single color
 void RedGlow();
 int red_glow_cur_level = 0;
 int red_glow_direction = 1;
 int red_glow_speed = 2;
 int red_glow_min_glow = 50;
 
+// Randomly adds a new segment of light that quickly fades
 void Sparkle();
-int sparkle_new_rate = 325; // range 1 - 1000
-int sparkle_fade_rate = 15;
-uint8_t sparkle_width = 3;
 
-void (*animations[])() = {
-  &Fire2012,
-  &RedGlow,
-  &Sparkle
+// Rate at which new sparkles are generated. Range 1 to 1000
+#define SPARKLE_NEW_RATE 450
+
+// How quickly the sparkles fade. Suggested range 3-30
+#define SPARKLE_FADE_RATE 15
+
+// Each new sparkle will have a random LED width. This setting
+// controls the narrowest the sparkle will be.
+#define SPARKLE_MIN_WIDTH 1
+
+// Each new sparkle will have a random LED width. This setting
+// controls the widest the sparkle will be.
+#define SPARKLE_MAX_WIDTH 4
+
+struct animation {
+  char name[16];
+  void (*function)();
+};
+
+animation animations[] = {
+  {"Fire", &Fire2012},
+  {"Red Glow", &RedGlow},
+  {"Sparkle", &Sparkle},
 };
 
 int current_animation=0;
@@ -159,14 +177,14 @@ void loop()
 
 void next_frame()
 {
-  animations[current_animation](); // generate animation frame
+  animations[current_animation].function(); // generate animation frame
   FastLED.show(); // display this frame
   if (digitalRead(BUTTON_PIN) == 0 && (millis() - button_last_press) >= DEBOUNCE_DELAY ) {
     button_last_press = millis();
-    Serial.printf("Button press detected. Current animation %d\n", current_animation);
     current_animation++;
     size_t num_animations = sizeof(animations)/sizeof(animations[0]);
     if (current_animation >= num_animations) { current_animation = 0; }
+    Serial.printf("Button press detected. Changing to %s\n", animations[current_animation].name);
   }
 }
 
@@ -249,16 +267,25 @@ void Fire2012()
 
 void Sparkle()
 {
+  // Decay all previous sparkles
+  fadeLightBy(leds, NUM_LEDS, SPARKLE_FADE_RATE);
+
+  // Roll dice to see if we should add a new sparkle
   int new_sparkle = -1;
-  if (random(1, 1000) <= sparkle_new_rate) {
+  if (random(1, 1000) <= SPARKLE_NEW_RATE) {
     new_sparkle = random(0, NUM_LEDS);
   }
-
-  fadeLightBy(leds, NUM_LEDS, sparkle_fade_rate);
+  
   if (new_sparkle > 0) {
+    // Add new sparkle at determined location
     leds[new_sparkle] = CRGB::White;
-    for (uint8_t i=1; i<= sparkle_width; i++) {
-      CRGB val = blend(CRGB::White, CRGB::Black, 255/sparkle_width*i);
+
+    // Determine new sparkle width
+    uint8_t new_sparkle_width = random(SPARKLE_MIN_WIDTH, SPARKLE_MAX_WIDTH);
+
+    // Spread out sparkle lighting, fading toward the edges
+    for (uint8_t i=1; i < new_sparkle_width; i++) {
+      CRGB val = blend(CRGB::White, CRGB::Black, 255/new_sparkle_width*i);
       if (new_sparkle + i < NUM_LEDS) { leds[new_sparkle + i] = val; }
       if (new_sparkle - i >= 0) { leds[new_sparkle - i] = val; }
     }
