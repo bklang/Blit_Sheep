@@ -5,7 +5,24 @@
 #include <Arduino.h>
 #include <FastLED.h>
 
+#define BUILD_WOKWI false
+
+#ifdef BUILD_WOKWI
+#define USE_MESH false
+#define BUTTON_PIN  7
+#define LED_PIN     9
+#define COLOR_ORDER GRB
+#define CHIPSET     WS2811
+#define MAX_BRIGHTNESS  200
+#else
 #define USE_MESH true
+#define BUTTON_PIN  14
+#define LED_PIN     12
+#define COLOR_ORDER GRB
+#define CHIPSET     WS2811
+#define MAX_BRIGHTNESS  150
+#endif
+
 #if USE_MESH
 #include <painlessMesh.h>
 #define MESH_SSID "Blit Sheep"
@@ -15,13 +32,8 @@ painlessMesh mesh;
 #include <TaskScheduler.h>
 #endif
 
-#define BUTTON_PIN  14
-#define LED_PIN     12
-#define COLOR_ORDER GRB
-#define CHIPSET     WS2811
 #define NUM_LEDS    60
 
-#define MAX_BRIGHTNESS  200
 #define FRAMES_PER_SECOND 60
 
 CRGB leds[NUM_LEDS];
