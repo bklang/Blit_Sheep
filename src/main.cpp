@@ -55,7 +55,7 @@ unsigned long button_last_press = 0;
 Scheduler scheduler;
 bool isController = false;
 void next_frame();
-Task task_next_frame( 15 * TASK_MILLISECOND , TASK_FOREVER, &next_frame );
+Task task_next_frame( 1000/FRAMES_PER_SECOND * TASK_MILLISECOND , TASK_FOREVER, &next_frame );
 
 void Fire2012();
 // How much does the air cool as it rises?
