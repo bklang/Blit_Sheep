@@ -1,0 +1,34 @@
+{
+  "version": 1,
+  "author": "Ben Klang",
+  "editor": "wokwi",
+  "parts": [
+    { "type": "board-esp32-c3-devkitm-1", "id": "esp", "top": 0, "left": 0, "attrs": {} },
+    {
+      "type": "wokwi-neopixel-canvas",
+      "id": "neopixels1",
+      "top": -788.1,
+      "left": 73.7,
+      "rotate": 90,
+      "attrs": { "rows": "60", "cols": "1", "pixelate": "circle", "matrixBrightness": "3.5" }
+    },
+    {
+      "type": "wokwi-pushbutton",
+      "id": "btn1",
+      "top": 57.5,
+      "left": 214.7,
+      "rotate": 180,
+      "attrs": { "color": "green" }
+    }
+  ],
+  "connections": [
+    [ "esp:TX", "$serialMonitor:RX", "", [] ],
+    [ "esp:RX", "$serialMonitor:TX", "", [] ],
+    [ "neopixels1:DIN", "esp:9", "green", [ "h-38.4", "v33", "h748.8", "v115.5" ] ],
+    [ "esp:5V.2", "neopixels1:VDD", "red", [ "h-283.48", "v-0.18", "h-384", "v-321.4" ] ],
+    [ "neopixels1:VSS", "esp:GND.1", "black", [ "h-48", "v114.8", "h656.58" ] ],
+    [ "btn1:1.r", "esp:GND.7", "black", [ "v9.6", "h-124.6" ] ],
+    [ "btn1:2.r", "esp:7", "green", [ "v3.3", "h-76.8", "v9.9" ] ]
+  ],
+  "dependencies": {}
+}
