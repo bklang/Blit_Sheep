@@ -3,20 +3,26 @@
   "author": "Ben Klang",
   "editor": "wokwi",
   "parts": [
-    { "type": "board-esp32-c3-devkitm-1", "id": "esp", "top": 0, "left": 0, "attrs": {} },
+    {
+      "type": "board-esp32-s3-devkitc-1",
+      "id": "esp",
+      "top": -19.38,
+      "left": 148.57,
+      "attrs": {}
+    },
     {
       "type": "wokwi-neopixel-canvas",
       "id": "neopixels1",
-      "top": -788.1,
-      "left": 73.7,
+      "top": -797.7,
+      "left": 707.3,
       "rotate": 90,
       "attrs": { "rows": "60", "cols": "1", "pixelate": "circle", "matrixBrightness": "3.5" }
     },
     {
       "type": "wokwi-pushbutton",
       "id": "btn1",
-      "top": 57.5,
-      "left": 214.7,
+      "top": 136.8,
+      "left": -172.6,
       "rotate": 180,
       "attrs": { "color": "green" }
     }
@@ -24,11 +30,13 @@
   "connections": [
     [ "esp:TX", "$serialMonitor:RX", "", [] ],
     [ "esp:RX", "$serialMonitor:TX", "", [] ],
-    [ "neopixels1:DIN", "esp:9", "green", [ "h-38.4", "v33", "h748.8", "v115.5" ] ],
+    [ "neopixels1:DIN", "esp:46", "green", [ "h-38.4", "v205.8", "h0", "v38.4" ] ],
     [ "esp:5V.2", "neopixels1:VDD", "red", [ "h-283.48", "v-0.18", "h-384", "v-321.4" ] ],
-    [ "neopixels1:VSS", "esp:GND.1", "black", [ "h-48", "v114.8", "h656.58" ] ],
     [ "btn1:1.r", "esp:GND.7", "black", [ "v9.6", "h-124.6" ] ],
-    [ "btn1:2.r", "esp:7", "green", [ "v3.3", "h-76.8", "v9.9" ] ]
+    [ "btn1:2.r", "esp:7", "green", [ "v3.3", "h-76.8", "v9.9" ] ],
+    [ "btn1:1.r", "esp:GND.1", "black", [ "v0" ] ],
+    [ "esp:5V", "neopixels1:VDD", "red", [ "h-240.05", "v-119.8" ] ],
+    [ "esp:GND.2", "neopixels1:VSS", "black", [ "v-38.4", "h-268.8", "v-76.4" ] ]
   ],
   "dependencies": {}
 }

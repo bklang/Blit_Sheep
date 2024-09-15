@@ -1,5 +1,5 @@
 [wokwi]
 version = 1
-firmware = '.pio/build/s3_mini/firmware.bin'
-elf = '.pio/build/s3_mini/firmware.elf'
+firmware = ".pio/build/wokwi/firmware.bin"
+elf = ".pio/build/wokwi/firmware.elf"
 gdbServerPort = 3333

@@ -5,23 +5,35 @@
 #include <Arduino.h>
 #include <FastLED.h>
 
-#define BUILD_WOKWI false
+#if !defined(TARGET_d1_mini) && !defined(TARGET_s3_mini) && !defined(TARGET_wokwi)
+#error "Must define a target board (eg. TARGET_s3_mini)"
+#endif
 
-#ifdef BUILD_WOKWI
-#define USE_MESH false
+#if defined(TARGET_d1_mini)
+#define USE_MESH true
 #define BUTTON_PIN  7
 #define LED_PIN     9
 #define COLOR_ORDER GRB
 #define CHIPSET     WS2811
-#define MAX_BRIGHTNESS  200
-#else
+#endif
+
+#if defined(TARGET_s3_mini)
 #define USE_MESH true
-#define BUTTON_PIN  14
-#define LED_PIN     12
+#define BUTTON_PIN  7
+#define LED_PIN     9
 #define COLOR_ORDER GRB
 #define CHIPSET     WS2811
-#define MAX_BRIGHTNESS  150
 #endif
+
+#if defined(TARGET_wokwi)
+#define USE_MESH false
+#define BUTTON_PIN  7
+#define LED_PIN     46
+#define COLOR_ORDER GRB
+#define CHIPSET     WS2812
+#endif
+
+#define MAX_BRIGHTNESS  200
 
 #if USE_MESH
 #include <painlessMesh.h>
